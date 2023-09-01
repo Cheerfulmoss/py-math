@@ -1,3 +1,12 @@
+"""
+Simulate logic for
+Alexander Burow - 2 September 2023
+
+License: GPL3
+
+There is no error checking.
+"""
+
 GATE_INS = dict[str: bool]
 
 INPUTS = list[str]
