@@ -164,6 +164,7 @@ class Circuit:
                         gate = self.OPERATIONS[operation_signature](
                             gate_ins, (output,)
                         )
+                        gate.clear_cache()
 
                         # Append the gate to the appropriate layer
                         layers.setdefault(

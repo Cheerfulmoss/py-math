@@ -89,9 +89,9 @@ def main():
         ["M=M"]
     ]
 
-    LogicSim(examp).logic_table(verbose=True)
-    LogicSim(examp).logic_table(verbose=False)
-    LogicSim(examp)
+    x = LogicSim(examp)
+    x.logic_table(verbose=True)
+    x.logic_table(verbose=False)
 
 
 if __name__ == "__main__":
