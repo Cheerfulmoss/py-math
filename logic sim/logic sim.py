@@ -1,5 +1,4 @@
 """
-Simulate logic for
 Alexander Burow - 2 September 2023
 
 License: GPL3
@@ -14,6 +13,8 @@ import cProfile
 class LogicSim:
     def __init__(self, gates: list[list[str]]):
         self._circuit = Circuit(gates=gates)
+        self.sim_list = None
+        self.sim_state = None
 
     def get_circuit(self):
         return self._circuit
@@ -55,7 +56,7 @@ class LogicSim:
 
         return layer_out
 
-    def logic_table(self, verbose: bool) -> dict[tuple: list]:
+    def full_sim(self, verbose: bool = False) -> None:
         combs_n = 2 ** len(self._circuit.inputs)
         row_outs = list()
 
@@ -68,39 +69,93 @@ class LogicSim:
             output = self.simulate(dictionary_in, verbose=verbose)
             row_outs.append(output)
 
-        header_setter = row_outs[0]
+        self.sim_state = verbose
+        self.sim_list = tuple(row_outs)
+
+    def _basic_table(self, verbose: bool, row_filter=None,
+                     title: str = "Unspecified"):
+        if self.sim_list is None or (self.sim_state != verbose and verbose):
+            self.full_sim(verbose=verbose)
+            local_sim_list = self.sim_list
+        elif self.sim_state != verbose:
+            local_sim_list = tuple(
+                (sim_state[0], sim_state[2]) for sim_state in self.sim_list
+            )
+        else:
+            local_sim_list = self.sim_list
+
+        header_setter = local_sim_list[0]
         header = []
 
         for out in header_setter:
             header.append("   ".join(list(out.keys())))
 
-        header = f"| {' | '.join(header)} |"
-        border = f"|{'-' * (len(header) - 2)}|"
+        header_content = " | ".join(header)
 
-        print(f"{border}\n{header}\n{border}")
+        pad = max(len(header_content), len(title))
 
-        for row_i, row_d in enumerate(row_outs):
-            row = []
-            for out in row_d:
-                row.append("   ".join(str(x) for x in out.values()))
-            row = f"| {' | '.join(row)} | {row_i}"
-            print(row)
+        header = f"| {header_content:^{pad}} |"
+        border = f"|{'-' * (pad+2)}|"
+        ttitle = f"| {title:^{pad}} |"
+
+        print(f"{border}\n{ttitle}\n{border}\n{header}\n{border}")
+
+        if row_filter is None:
+            row_filter = lambda row: True
+
+        for row_i, row_d in enumerate(local_sim_list):
+            if row_filter(row_d):
+                row = []
+                for out in row_d:
+                    row.append("   ".join(str(x) for x in out.values()))
+
+                row_content = " | ".join(row)
+                row = f"| {row_content:^{pad}} | {row_i}"
+                print(row)
         print(border)
+
+    def ones_table(self, verbose: bool):
+        self._basic_table(verbose=verbose,
+                          row_filter=lambda row: any(row[-1].values()),
+                          title="Ones Table")
+
+    def uniform_ones_table(self, verbose: bool):
+        self._basic_table(verbose=verbose,
+                          row_filter=lambda row: all(row[-1].values()),
+                          title="Uniform Ones Table")
+
+    def uniform_zeros_table(self, verbose: bool):
+        self._basic_table(verbose=verbose,
+                          row_filter=lambda row: not any(row[-1].values()),
+                          title="Uniform Zeros Table")
+
+    def zeros_table(self, verbose: bool):
+        self._basic_table(verbose=verbose,
+                          row_filter=lambda row: not all(row[-1].values()),
+                          title="Zeros Table")
+
+    def logic_table(self, verbose: bool) -> None:
+        self._basic_table(verbose=verbose,
+                          title="Complete Logic Table")
 
 
 def main():
-    examp = [
+    examp1 = [
         ["A=A", "B=B", "C=C", "D=D", "E=E"],
         ["A+B=F", "D+E=G", "C^B=H", "C^D=I"],
         ["I~I=J"],
         ["F*H=K", "G*J=L"],
-        ["L+K=M"],
-        ["M=M"]
+        ["L+K=M", "A*K=N"],
+        ["M=M", "N=N"]
     ]
 
-    x = LogicSim(examp)
+    x = LogicSim(examp1)
     x.logic_table(verbose=True)
     x.logic_table(verbose=False)
+    x.ones_table(verbose=True)
+    x.ones_table(verbose=False)
+    x.zeros_table(verbose=True)
+    x.zeros_table(verbose=False)
 
 
 if __name__ == "__main__":
