@@ -95,13 +95,13 @@ class LogicSim:
         pad = max(len(header_content), len(title))
 
         header = f"| {header_content:^{pad}} |"
-        border = f"|{'-' * (pad+2)}|"
-        ttitle = f"| {title:^{pad}} |"
+        border = f"|{'-' * (pad + 2)}|"
+        form_title = f"| {title:^{pad}} |"
 
-        print(f"{border}\n{ttitle}\n{border}\n{header}\n{border}")
+        print(f"{border}\n{form_title}\n{border}\n{header}\n{border}")
 
         if row_filter is None:
-            row_filter = lambda row: True
+            row_filter = lambda _: True
 
         for row_i, row_d in enumerate(local_sim_list):
             if row_filter(row_d):
@@ -138,6 +138,11 @@ class LogicSim:
         self._basic_table(verbose=verbose,
                           title="Complete Logic Table")
 
+    def custom_table(self, verbose: bool, filter_func, title) -> None:
+        self._basic_table(verbose=verbose,
+                          row_filter=filter_func,
+                          title=title)
+
 
 def main():
     examp1 = [
@@ -156,6 +161,10 @@ def main():
     x.ones_table(verbose=False)
     x.zeros_table(verbose=True)
     x.zeros_table(verbose=False)
+
+    x.custom_table(verbose=True,
+                   filter_func=lambda row: row[0]["A"] == row[0]["B"],
+                   title="Custom Table")
 
 
 if __name__ == "__main__":
