@@ -124,6 +124,9 @@ class Circuit:
     def __init__(self, gates: GATES):
         """Initialises a Circuit instance.
 
+        The general format of the circuit is, inputs can occur anywhere in
+        `gates`, however, outputs can only be at the end of the `gates` list.
+
         Args:
             gates (list[list[str]]): List of gate operations to construct the
                 circuit.
