@@ -1,6 +1,14 @@
+"""
+Visualise logic functions
+Alexander Burow - 2 September 2023
+
+License: GPL3
+
+There is no error checking.
+"""
+
 import plotly.express as px
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import numpy as np
 
 
@@ -13,7 +21,7 @@ def func(x, y):
         "NOR": ~(x | y),
         "XNOR": ~(x ^ y),
     }
-    return operations["AND"]
+    return operations["XOR"]
 
 
 def calc_coords(x: int, y: int):
@@ -22,14 +30,14 @@ def calc_coords(x: int, y: int):
 
 def draw(max_power: int):
     fig = px.imshow(
-        calc_coords(2 ** max_power + 1, 2 ** max_power + 1),
+        calc_coords(2 ** max_power, 2 ** max_power),
         text_auto=(max_power < 6))
     fig.show()
 
 
 def draw_surface(max_power: int):
     fig = go.Figure(
-        data=[go.Surface(z=calc_coords(2 ** max_power + 1, 2 ** max_power + 1))]
+        data=[go.Surface(z=calc_coords(2 ** max_power, 2 ** max_power))]
     )
     fig.show()
 
@@ -37,3 +45,4 @@ def draw_surface(max_power: int):
 if __name__ == "__main__":
     n = 5
     draw(n)
+    draw_surface(n)
