@@ -1,0 +1,6 @@
+A=A, B=B, C=C, D=D, E=E
+A+B=F,D+E=G, C^B=H,C^D=I
+I~I=J
+F*H=K, G*J=L
+L+K=M, A*K=N
+M=M,N=N

@@ -11,13 +11,30 @@ import cProfile
 
 
 class LogicSim:
-    def __init__(self, gates: list[list[str]]):
-        self._circuit = Circuit(gates=gates)
-        self.sim_list = None
-        self.sim_state = None
+    def __init__(self, filename: str):
+        self._circuit = self.load_circuit(filename=filename)
+        self._sim_list = None
+        self._sim_state = None
+
+    @staticmethod
+    def load_circuit(filename: str) -> Circuit:
+        circuit = []
+        with open(filename, "r") as r_circuit:
+            for line in r_circuit:
+                line = line.replace(" ", "").replace(
+                    "\n", "")
+                gates = line.split(",")
+                circuit.append(gates)
+        return Circuit(gates=circuit)
 
     def get_circuit(self):
         return self._circuit
+
+    def get_sim_list(self):
+        return self._sim_list
+
+    def get_sim_state(self):
+        return self._sim_state
 
     def simulate(self, inputs: dict[str: bool], verbose: bool = False):
         layer_outs = inputs
@@ -69,20 +86,20 @@ class LogicSim:
             output = self.simulate(dictionary_in, verbose=verbose)
             row_outs.append(output)
 
-        self.sim_state = verbose
-        self.sim_list = tuple(row_outs)
+        self._sim_state = verbose
+        self._sim_list = tuple(row_outs)
 
     def _basic_table(self, verbose: bool, row_filter=None,
                      title: str = "Unspecified"):
-        if self.sim_list is None or (self.sim_state != verbose and verbose):
+        if self._sim_list is None or (self._sim_state != verbose and verbose):
             self.full_sim(verbose=verbose)
-            local_sim_list = self.sim_list
-        elif self.sim_state != verbose:
+            local_sim_list = self._sim_list
+        elif self._sim_state != verbose:
             local_sim_list = tuple(
-                (sim_state[0], sim_state[2]) for sim_state in self.sim_list
+                (sim_state[0], sim_state[2]) for sim_state in self._sim_list
             )
         else:
-            local_sim_list = self.sim_list
+            local_sim_list = self._sim_list
 
         header_setter = local_sim_list[0]
         header = []
@@ -145,16 +162,7 @@ class LogicSim:
 
 
 def main():
-    examp1 = [
-        ["A=A", "B=B", "C=C", "D=D", "E=E"],
-        ["A+B=F", "D+E=G", "C^B=H", "C^D=I"],
-        ["I~I=J"],
-        ["F*H=K", "G*J=L"],
-        ["L+K=M", "A*K=N"],
-        ["M=M", "N=N"]
-    ]
-
-    x = LogicSim(examp1)
+    x = LogicSim("circ.txt")
     x.logic_table(verbose=True)
     x.logic_table(verbose=False)
     x.ones_table(verbose=True)
